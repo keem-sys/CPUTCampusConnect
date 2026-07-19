@@ -50,24 +50,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (userEmail != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(userEmail);
 
-            if (jwtUtils.isTokenValidForUser(jwt, userDetails.getUsername())) {
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(userEmail);
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                if (jwtUtils.isTokenValidForUser(jwt, userDetails.getUsername())) {
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                logger.warn("Authentication failed: User no longer exists or token is invalid.");
             }
         }
 

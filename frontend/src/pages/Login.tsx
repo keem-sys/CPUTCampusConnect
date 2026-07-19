@@ -11,6 +11,7 @@ import type { BackendErrorResponse } from '../types/apiResponses.ts';
 import { isAxiosError } from 'axios';
 import Footer from '../components/Footer.tsx';
 import toast from "react-hot-toast";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -18,6 +19,8 @@ export default function Login() {
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,7 +36,8 @@ export default function Login() {
                 sessionStorage.setItem('token', token);
             }
             toast.success('Welcome back!');
-            // TODO: navigate to dashboard
+            const from = (location.state as any)?.from?.pathname || '/dashboard';
+            navigate(from, { replace: true });
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';
 

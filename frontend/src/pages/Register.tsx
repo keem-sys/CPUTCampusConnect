@@ -15,6 +15,7 @@ import type { BackendErrorResponse } from '../types/apiResponses';
 import cputCampusImg from '../assets/district-6-campus.jpg';
 import Footer from "../components/Footer.tsx";
 import toast from "react-hot-toast";
+import {useNavigate, useLocation} from "react-router-dom";
 
 type Role = 'STUDENT' | 'ORGANIZER' | 'ADMIN';
 
@@ -27,6 +28,8 @@ export default function Register() {
 
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -50,7 +53,8 @@ export default function Register() {
             const { token } = response.data;
             localStorage.setItem('token', token);
             toast.success('Registration successful! Redirecting...');
-            // TODO: navigate('/dashboard');
+            const from = (location.state as any)?.from?.pathname || '/dashboard';
+            navigate(from, { replace: true });
 
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';
