@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
     Landmark,
     Mail,
@@ -11,7 +11,7 @@ import type { BackendErrorResponse } from '../types/apiResponses.ts';
 import { isAxiosError } from 'axios';
 import Footer from '../components/Footer.tsx';
 import toast from "react-hot-toast";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -22,27 +22,48 @@ export default function Login() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    useEffect(() => {
+        const existingToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (existingToken) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [navigate]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage('');
         setLoading(true);
 
         try {
-            const response = await axiosClient.post('/api/auth/login', { email, password });
+            const cleanEmail = email.trim().toLowerCase();
+            const response = await axiosClient.post('/api/auth/login', { email: cleanEmail, password });
             const { token } = response.data;
             if (rememberMe) {
                 localStorage.setItem('token', token);
+                sessionStorage.removeItem('token');
             } else {
                 sessionStorage.setItem('token', token);
+                localStorage.removeItem('token');
             }
             toast.success('Welcome back!');
-            const from = (location.state as any)?.from?.pathname || '/dashboard';
-            navigate(from, { replace: true });
+            const targetPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+            const destination = (targetPath && targetPath !== '/login' && targetPath !== '/register')
+                ? targetPath
+                : '/dashboard';
+            navigate(destination, { replace: true });
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';
 
             if (isAxiosError<BackendErrorResponse>(err)) {
-                message = err.response?.data?.message || 'Login failed. Please try again.';
+                if (err.response?.data?.message) {
+                    message = err.response.data.message;
+                } else if (typeof err.response?.data === 'string') {
+                    message = err.response.data;
+                } else if (err.response?.statusText) {
+                    message = `Login failed: ${err.response.statusText}`;
+                } else {
+                    message = 'Login failed. Please check your email and password.';
+                }
             } else if (err instanceof Error) {
                 message = err.message;
             }
@@ -170,9 +191,9 @@ export default function Login() {
             {/* Create Account Link */}
             <p className="mt-8 text-center text-sm text-muted">
                 New here?{' '}
-                <a href="/register" className="font-bold text-brand-primary hover:underline">
+                <Link to="/register" className="font-bold text-brand-primary hover:underline">
                     Create an account
-                </a>
+                </Link>
             </p>
         </div>
     </div>

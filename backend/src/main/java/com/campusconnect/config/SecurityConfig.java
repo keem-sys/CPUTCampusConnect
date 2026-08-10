@@ -62,11 +62,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
-        try {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
             return config.getAuthenticationManager();
-        } catch (Exception e) {
-            throw new RuntimeException("Could not create AuthenticationManager", e);
-        }
     }
 }

@@ -13,7 +13,7 @@ import axiosClient from '../services/axiosClient';
 import type {BackendErrorResponse} from '../types/apiResponses';
 import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
 
 interface UserProfile {
     userId: string;
@@ -40,7 +40,7 @@ export default function ProfileSettings() {
                 const response = await axiosClient.get<UserProfile>('/api/users/me');
                 setFullName(response.data.fullName);
                 setEmail(response.data.email);
-            } catch (err: unknown) {
+            } catch {
                 toast.error('Failed to load profile details.');
             } finally {
                 setPageLoading(false);
@@ -299,13 +299,13 @@ export default function ProfileSettings() {
 
                     {/* Back to Dashboard Link */}
                     <div className="mt-6 text-center">
-                        <a
-                            href="/dashboard"
+                        <Link
+                            to="/dashboard"
                             className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:underline"
                         >
                             <ArrowLeft className="h-3 w-3" />
                             Back to Dashboard
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

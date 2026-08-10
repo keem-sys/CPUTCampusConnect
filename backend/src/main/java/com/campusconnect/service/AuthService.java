@@ -9,6 +9,7 @@ import com.campusconnect.model.User;
 import com.campusconnect.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,8 +31,10 @@ public class AuthService {
         }
 
         Role requestedRole = registrationRequest.role();
-        if (requestedRole == Role.ADMIN) {
+        if (requestedRole != null && requestedRole == Role.ADMIN) {
             throw new IllegalArgumentException("You cannot register as an Admin!");
+        } else if (requestedRole == null) {
+            requestedRole = Role.STUDENT;
         }
 
         User user = User.builder()
@@ -46,12 +49,18 @@ public class AuthService {
     }
 
     public String login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
-        );
+        String lowerCaseEmail = loginRequest.email().toLowerCase();
 
-        User user = userRepository.findByEmail(loginRequest.email()).orElseThrow(() ->
-                new RuntimeException("User not found!"));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(lowerCaseEmail, loginRequest.password())
+            );
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
+
+        User user = userRepository.findByEmail(lowerCaseEmail).orElseThrow(() ->
+                new UsernameNotFoundException("User not found"));
 
         return jwtUtils.generateToken(user);
     }

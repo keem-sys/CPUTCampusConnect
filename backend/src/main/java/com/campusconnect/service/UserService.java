@@ -1,6 +1,7 @@
 package com.campusconnect.service;
 
 import com.campusconnect.dto.request.UpdateProfileRequest;
+import com.campusconnect.dto.response.UserProfileResponse;
 import com.campusconnect.repository.UserRepository;
 import com.campusconnect.model.User;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,38 +17,18 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmail(email.toLowerCase())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
     }
 
-    @Transactional
-    public User updateProfile(String email, UpdateProfileRequest request) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+    public UserProfileResponse getCurrentUserProfile(String email){
+        User user = getUserByEmail(email);
 
-        user.setFullName(request.fullName());
-
-        if (request.newPassword() != null && !request.newPassword().isBlank()) {
-            if (request.currentPassword() == null || request.currentPassword().isBlank()) {
-                throw new IllegalArgumentException("Current password is required to change password.");
-            }
-
-            if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
-                throw new IllegalArgumentException("Incorrect current password.");
-            }
-
-            user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
-        }
-
-        return userRepository.saveAndFlush(user);
-    }
-
-    @Transactional
-    public void deleteUser(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
-
-        userRepository.delete(user);
-        userRepository.flush();
+        return new UserProfileResponse(
+                user.getUserId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 }

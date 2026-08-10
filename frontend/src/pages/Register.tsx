@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     Landmark,
     User,
@@ -9,13 +9,13 @@ import {
     UserCheck,
     LockKeyhole
 } from 'lucide-react';
-import { isAxiosError } from 'axios';
+import {isAxiosError} from 'axios';
 import api from '../services/axiosClient';
-import type { BackendErrorResponse } from '../types/apiResponses';
+import type {BackendErrorResponse} from '../types/apiResponses';
 import cputCampusImg from '../assets/district-6-campus.jpg';
 import Footer from "../components/Footer.tsx";
 import toast from "react-hot-toast";
-import {useNavigate, useLocation} from "react-router-dom";
+import {useNavigate, useLocation, Link} from "react-router-dom";
 
 type Role = 'STUDENT' | 'ORGANIZER' | 'ADMIN';
 
@@ -31,6 +31,13 @@ export default function Register() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    useEffect(() => {
+        const existingToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (existingToken) {
+            navigate('/dashboard', {replace: true});
+        }
+    }, [navigate]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage('');
@@ -43,24 +50,38 @@ export default function Register() {
         setLoading(true);
 
         try {
+            const cleanEmail = email.trim().toLowerCase();
+            const cleanFullName = fullName.trim();
             const response = await api.post('/api/auth/register', {
-                fullName,
-                email,
+                fullName: cleanFullName,
+                email: cleanEmail,
                 password,
                 role
             });
 
-            const { token } = response.data;
+            const {token} = response.data;
             localStorage.setItem('token', token);
+            sessionStorage.setItem('token', token);
             toast.success('Registration successful! Redirecting...');
-            const from = (location.state as any)?.from?.pathname || '/dashboard';
-            navigate(from, { replace: true });
+            const targetPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+            const destination = (targetPath && targetPath !== '/login' && targetPath !== '/register')
+                ? targetPath
+                : '/dashboard';
+            navigate(destination, {replace: true});
 
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';
 
             if (isAxiosError<BackendErrorResponse>(err)) {
-                message = err.response?.data?.message || 'Registration failed. Please try again.';
+                if (err.response?.data?.message) {
+                    message = err.response.data.message;
+                } else if (typeof err.response?.data === 'string') {
+                    message = err.response.data;
+                } else if (err.response?.statusText) {
+                    message = `Registration failed: ${err.response.statusText}`;
+                } else {
+                    message = 'Registration failed. Please check your information.';
+                }
             } else if (err instanceof Error) {
                 message = err.message;
             }
@@ -78,7 +99,7 @@ export default function Register() {
             {/* Top Header Section */}
             <div className="mt-12 mb-8 flex flex-col items-center text-center z-10">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary shadow-sm">
-                    <Landmark className="h-6 w-6 text-white" />
+                    <Landmark className="h-6 w-6 text-white"/>
                 </div>
                 <h1 className="text-3xl font-extrabold tracking-tight text-brand-primary">
                     Campus Connect
@@ -91,7 +112,8 @@ export default function Register() {
             {/* Main Content Layout */}
             <main className="relative flex w-full flex-grow flex-col items-center px-4 pb-12">
 
-                <div className="absolute right-[-5%] top-10 hidden w-96 rotate-6 transform rounded-2xl bg-white p-4 shadow-[0_20px_50px_rgb(0,0,0,0.1)] lg:block xl:right-[5%] opacity-90 pointer-events-none">
+                <div
+                    className="absolute right-[-5%] top-10 hidden w-96 rotate-6 transform rounded-2xl bg-white p-4 shadow-[0_20px_50px_rgb(0,0,0,0.1)] lg:block xl:right-[5%] opacity-90 pointer-events-none">
                     <div className="h-48 w-full rounded-xl bg-gray-200 overflow-hidden mb-4 border border-ui-border">
                         <img
                             src={cputCampusImg}
@@ -105,7 +127,8 @@ export default function Register() {
                 </div>
 
                 {/* Form Card */}
-                <div className="z-10 w-full max-w-xl bg-card px-8 py-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl border-b-4 border-brand-accent sm:px-10">
+                <div
+                    className="z-10 w-full max-w-xl bg-card px-8 py-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl border-b-4 border-brand-accent sm:px-10">
                     <div className="mb-8">
                         <h2 className="text-2xl font-bold text-brand-primary">Create Account</h2>
                         <p className="mt-1 text-sm text-muted">Join the community to organize and attend events.</p>
@@ -122,12 +145,13 @@ export default function Register() {
 
                         {/* Full Name Input */}
                         <div className="space-y-2">
-                            <label htmlFor="fullName" className="block text-xs font-bold uppercase tracking-wider text-muted">
+                            <label htmlFor="fullName"
+                                   className="block text-xs font-bold uppercase tracking-wider text-muted">
                                 Full Name
                             </label>
                             <div className="relative">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <User className="h-5 w-5 text-gray-400" />
+                                    <User className="h-5 w-5 text-gray-400"/>
                                 </div>
                                 <input
                                     id="fullName"
@@ -143,12 +167,13 @@ export default function Register() {
 
                         {/* Email Input */}
                         <div className="space-y-2">
-                            <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-muted">
+                            <label htmlFor="email"
+                                   className="block text-xs font-bold uppercase tracking-wider text-muted">
                                 Email
                             </label>
                             <div className="relative">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <Mail className="h-5 w-5 text-gray-400" />
+                                    <Mail className="h-5 w-5 text-gray-400"/>
                                 </div>
                                 <input
                                     id="email"
@@ -178,7 +203,7 @@ export default function Register() {
                                             : 'border-transparent bg-[#F4F5F7] text-muted hover:bg-gray-200'
                                     }`}
                                 >
-                                    <UserCheck className="mb-1 h-5 w-5" />
+                                    <UserCheck className="mb-1 h-5 w-5"/>
                                     <span className="text-[10px] font-bold uppercase tracking-wider">Student</span>
                                 </button>
 
@@ -192,7 +217,7 @@ export default function Register() {
                                             : 'border-transparent bg-[#F4F5F7] text-muted hover:bg-gray-200'
                                     }`}
                                 >
-                                    <Calendar className="mb-1 h-5 w-5" />
+                                    <Calendar className="mb-1 h-5 w-5"/>
                                     <span className="text-[10px] font-bold uppercase tracking-wider">Organizer</span>
                                 </button>
                             </div>
@@ -202,12 +227,14 @@ export default function Register() {
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {/* Password */}
                             <div className="space-y-2">
-                                <label htmlFor="password" className="block text-xs font-bold uppercase tracking-wider text-muted">
+                                <label htmlFor="password"
+                                       className="block text-xs font-bold uppercase tracking-wider text-muted">
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <Lock className="h-5 w-5 text-gray-400" />
+                                    <div
+                                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <Lock className="h-5 w-5 text-gray-400"/>
                                     </div>
                                     <input
                                         id="password"
@@ -224,12 +251,14 @@ export default function Register() {
 
                             {/* Confirm Password */}
                             <div className="space-y-2">
-                                <label htmlFor="confirmPassword" className="block text-xs font-bold uppercase tracking-wider text-muted">
+                                <label htmlFor="confirmPassword"
+                                       className="block text-xs font-bold uppercase tracking-wider text-muted">
                                     Confirm Password
                                 </label>
                                 <div className="relative">
-                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                        <LockKeyhole className="h-5 w-5 text-gray-400" />
+                                    <div
+                                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <LockKeyhole className="h-5 w-5 text-gray-400"/>
                                     </div>
                                     <input
                                         id="confirmPassword"
@@ -252,14 +281,14 @@ export default function Register() {
                             className="mt-4 group flex w-full items-center justify-center gap-2 rounded-lg bg-brand-primary py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-90 active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary transition-all disabled:opacity-50"
                         >
                             {loading ? 'Registering...' : 'Register'}
-                            {!loading && <ArrowRight className="h-4 w-4" />}
+                            {!loading && <ArrowRight className="h-4 w-4"/>}
                         </button>
 
                         <div className="pt-2 text-center text-sm text-muted">
                             Already have an account?{' '}
-                            <a href="/login" className="font-bold text-brand-accent hover:underline">
+                            <Link to="/login" className="font-bold text-brand-accent hover:underline">
                                 Login here
-                            </a>
+                            </Link>
                         </div>
                     </form>
                 </div>
@@ -278,7 +307,7 @@ export default function Register() {
 
             </main>
 
-            <Footer />
+            <Footer/>
         </div>
     );
 }

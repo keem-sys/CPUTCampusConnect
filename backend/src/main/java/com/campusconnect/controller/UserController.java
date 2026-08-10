@@ -19,38 +19,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUserProfile(Authentication authentication) {
         String email = authentication.getName();
-        User user = userService.getUserByEmail(email);
+        UserProfileResponse response = userService.getCurrentUserProfile(email);
 
-        UserProfileResponse userProfileResponse = new UserProfileResponse(
-                user.getUserId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole()
-        );
-        return ResponseEntity.ok(userProfileResponse);
-    }
-
-    @PutMapping("/profile")
-    public ResponseEntity<UserProfileResponse> updateProfile(
-            Authentication authentication,
-            @RequestBody @Valid UpdateProfileRequest request
-    ) {
-        String email = authentication.getName();
-        User updatedUser = userService.updateProfile(email, request);
-
-        UserProfileResponse response = new UserProfileResponse(
-                updatedUser.getUserId(),
-                updatedUser.getFullName(),
-                updatedUser.getEmail(),
-                updatedUser.getRole()
-        );
         return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/profile")
-    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
-        String email = authentication.getName();
-        userService.deleteUser(email);
-        return ResponseEntity.noContent().build();
     }
 }
