@@ -25,4 +25,4 @@ jobs:
 
       - name: Run Maven tests
         working-directory: backend
-        run: ./mvnw test
+         run: bash ./mvnw test
