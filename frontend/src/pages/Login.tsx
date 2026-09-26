@@ -9,7 +9,6 @@ import {
 import axiosClient from '../services/axiosClient.ts';
 import type { BackendErrorResponse } from '../types/apiResponses.ts';
 import { isAxiosError } from 'axios';
-import Footer from '../components/Footer.tsx';
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -186,9 +185,6 @@ export default function Login() {
             <p className="text-xs text-muted">Registration closes in 2 days</p>
         </div>
     </div>
-
-    <Footer />
-
 </div>
 );
 }
