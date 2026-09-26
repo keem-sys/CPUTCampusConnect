@@ -11,7 +11,6 @@ import {
 import { isAxiosError } from 'axios';
 import axiosClient from '../services/axiosClient';
 import type {BackendErrorResponse} from '../types/apiResponses';
-import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
 import {useNavigate} from "react-router-dom";
 
@@ -309,9 +308,6 @@ export default function ProfileSettings() {
                     </div>
                 </div>
             </div>
-
-            {/* Shared Footer component */}
-            <Footer />
         </div>
     );
 }
