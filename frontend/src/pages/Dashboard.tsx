@@ -13,13 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosClient from '../services/axiosClient';
 import toast from 'react-hot-toast';
 import CreateEventModal from '../components/CreateEventModal';
-
-interface UserProfile {
-    userId: string;
-    fullName: string;
-    email: string;
-    role: 'STUDENT' | 'ORGANIZER' | 'ADMIN';
-}
+import type {UserProfile} from "../components/Navbar.tsx";
 
 interface CampusEvent {
     id: string;
@@ -37,7 +31,6 @@ interface CampusEvent {
     isRegistered?: boolean;
 }
 
-// Initial sample events to render the UI before connecting backend Event APIs
 const SAMPLE_EVENTS: CampusEvent[] = [
     {
         id: '1',

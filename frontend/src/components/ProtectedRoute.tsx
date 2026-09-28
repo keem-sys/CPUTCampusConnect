@@ -1,19 +1,20 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import type {Role} from "../types/apiResponses.ts";
 
 interface ProtectedRouteProps {
-    allowedRoles?: ('STUDENT' | 'ORGANIZER' | 'ADMIN')[];
+    allowedRoles?: Role[];
 }
 
-function getUserRoleFromToken(): string | null {
+function getUserRoleFromToken(): Role | null {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token) return null;
 
     try {
         const payloadBase64 = token.split('.')[1];
         const decodedPayload = JSON.parse(atob(payloadBase64));
-        return decodedPayload.role || null;
-    } catch (error) {
+        return (decodedPayload.role as Role) || null;
+    } catch {
         return null;
     }
 }
@@ -27,7 +28,7 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (allowedRoles && userRole && !allowedRoles.includes(userRole as any)) {
+    if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
         toast.error('Access Denied: You do not have permission to view this page.');
         return <Navigate to="/dashboard" replace />;
     }

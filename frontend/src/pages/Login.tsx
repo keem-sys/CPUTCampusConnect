@@ -7,7 +7,7 @@ import {
     Megaphone
 } from 'lucide-react';
 import axiosClient from '../services/axiosClient.ts';
-import type { BackendErrorResponse } from '../types/apiResponses.ts';
+import type {BackendErrorResponse, LocationState} from '../types/apiResponses.ts';
 import { isAxiosError } from 'axios';
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -35,7 +35,7 @@ export default function Login() {
                 sessionStorage.setItem('token', token);
             }
             toast.success('Welcome back!');
-            const from = (location.state as any)?.from?.pathname || '/dashboard';
+            const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
             navigate(from, { replace: true });
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';

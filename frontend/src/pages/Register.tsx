@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { isAxiosError } from 'axios';
 import api from '../services/axiosClient';
-import type { BackendErrorResponse } from '../types/apiResponses';
+import type {BackendErrorResponse, LocationState} from '../types/apiResponses';
 import cputCampusImg from '../assets/district-6-campus.jpg';
 import Footer from "../components/Footer.tsx";
 import toast from "react-hot-toast";
@@ -53,7 +53,7 @@ export default function Register() {
             const { token } = response.data;
             localStorage.setItem('token', token);
             toast.success('Registration successful! Redirecting...');
-            const from = (location.state as any)?.from?.pathname || '/dashboard';
+            const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
             navigate(from, { replace: true });
 
         } catch (err: unknown) {
@@ -89,7 +89,7 @@ export default function Register() {
             </div>
 
             {/* Main Content Layout */}
-            <main className="relative flex w-full flex-grow flex-col items-center px-4 pb-12">
+            <main className="relative flex w-full grow flex-col items-center px-4 pb-12">
 
                 <div className="absolute right-[-5%] top-10 hidden w-96 rotate-6 transform rounded-2xl bg-white p-4 shadow-[0_20px_50px_rgb(0,0,0,0.1)] lg:block xl:right-[5%] opacity-90 pointer-events-none">
                     <div className="h-48 w-full rounded-xl bg-gray-200 overflow-hidden mb-4 border border-ui-border">

@@ -12,13 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-export interface UserProfile {
-    userId: string;
-    fullName: string;
-    email: string;
-    role: 'STUDENT' | 'ORGANIZER' | 'ADMIN';
-}
+import type {UserProfile} from "../types/apiResponses.ts";
 
 interface NavbarProps {
     user: UserProfile | null;

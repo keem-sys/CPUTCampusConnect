@@ -16,7 +16,7 @@ export default function AppLayout() {
             try {
                 const response = await axiosClient.get<UserProfile>('/api/users/me');
                 setUser(response.data);
-            } catch (err: unknown) {
+            } catch  {
                 toast.error('Session expired. Please log in again.');
                 localStorage.removeItem('token');
                 sessionStorage.removeItem('token');
@@ -41,15 +41,12 @@ export default function AppLayout() {
 
     return (
         <div className="flex min-h-screen flex-col bg-app font-brand">
-            {/* 1. Universal conditional Navbar */}
             <Navbar user={user} />
 
-            {/* 2. Dynamic Child Page (/dashboard, /settings, etc.) */}
             <div className="flex-1">
                 <Outlet context={{ user }} />
             </div>
 
-            {/* 3. Universal Footer */}
             <Footer />
         </div>
     );

@@ -10,50 +10,33 @@ import {
 } from 'lucide-react';
 import { isAxiosError } from 'axios';
 import axiosClient from '../services/axiosClient';
-import type {BackendErrorResponse} from '../types/apiResponses';
+import type {BackendErrorResponse, LayoutContextType, UserProfile} from '../types/apiResponses';
 import toast from 'react-hot-toast';
-import {useNavigate} from "react-router-dom";
-
-interface UserProfile {
-    userId: string;
-    fullName: string;
-    email: string;
-    role: 'STUDENT' | 'ORGANIZER' | 'ADMIN';
-}
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 export default function ProfileSettings() {
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
+    const { user, setUser } = useOutletContext<LayoutContextType>();
+
+    const [fullName, setFullName] = useState(user?.fullName || '');
+    const [email, setEmail] = useState(user?.email || '');
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
 
-    const [pageLoading, setPageLoading] = useState(true);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
-    // Fetch the current user details to pre-populate the form
     useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const response = await axiosClient.get<UserProfile>('/api/users/me');
-                setFullName(response.data.fullName);
-                setEmail(response.data.email);
-            } catch (err: unknown) {
-                toast.error('Failed to load profile details.');
-            } finally {
-                setPageLoading(false);
-            }
-        };
-
-        fetchUserProfile();
-    }, []);
+        if (user) {
+            setFullName(user.fullName);
+            setEmail(user.email);
+        }
+    }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage('');
 
-        // Frontend validation: If they filled New Password, they must provide Current Password
         if (newPassword && !currentPassword) {
             setErrorMessage('Current password is required to change your password.');
             toast.error('Please enter your current password.');
@@ -78,10 +61,9 @@ export default function ProfileSettings() {
                 });
 
                 navigate('/login', { replace: true });
-            }
+            } else {
+                setUser(response.data);
 
-            else {
-                setFullName(response.data.fullName);
                 setCurrentPassword('');
                 setNewPassword('');
                 toast.success('Profile details updated successfully!');
@@ -118,7 +100,6 @@ export default function ProfileSettings() {
             sessionStorage.removeItem('token');
 
             toast.success('Your account has been deleted successfully.');
-
             navigate('/register', { replace: true });
         } catch (err: unknown) {
             let message = 'Failed to delete account. Please try again.';
@@ -133,20 +114,8 @@ export default function ProfileSettings() {
         }
     };
 
-    if (pageLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-app">
-                <div className="text-sm font-semibold text-brand-primary animate-pulse">
-                    Loading profile...
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="relative flex min-h-screen flex-col bg-app font-brand">
-
-            {/* Center content container */}
             <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
 
                 {/* Top Header Section */}
@@ -171,8 +140,6 @@ export default function ProfileSettings() {
                     </div>
 
                     <form className="space-y-5" onSubmit={handleSubmit}>
-
-                        {/* Error Banner */}
                         {errorMessage && (
                             <div className="rounded-brand bg-red-50 p-3 text-sm text-red-500 border border-red-200 text-center">
                                 {errorMessage}
@@ -200,7 +167,7 @@ export default function ProfileSettings() {
                             </div>
                         </div>
 
-                        {/* Email Input (Disabled/ReadOnly as it is the primary unique identifier) */}
+                        {/* Email Input */}
                         <div className="space-y-1.5">
                             <label htmlFor="email" className="block text-[10px] font-bold uppercase tracking-wider text-muted">
                                 Email
@@ -228,8 +195,8 @@ export default function ProfileSettings() {
                                     Current Password
                                 </label>
                                 <span className="text-[9px] font-medium text-muted">
-                  Required only if changing password
-                </span>
+                                    Required only if changing password
+                                </span>
                             </div>
                             <div className="relative">
                                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
