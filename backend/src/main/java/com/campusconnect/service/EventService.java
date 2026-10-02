@@ -3,9 +3,14 @@ package com.campusconnect.service;
 import com.campusconnect.dto.request.EventCreateRequest;
 import com.campusconnect.dto.response.EventResponse;
 import com.campusconnect.model.Event;
+import com.campusconnect.model.EventRegistration;
 import com.campusconnect.model.User;
+import com.campusconnect.model.Role;
 import com.campusconnect.repository.EventRepository;
+import com.campusconnect.repository.EventRegistrationRepository;
 import com.campusconnect.repository.UserRepository;
+import com.campusconnect.exception.EventCapacityExceededException;
+import com.campusconnect.exception.OrganizerRsvpNotAllowedException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final EventRegistrationRepository registrationRepository;
 
     @Transactional
     public EventResponse createEvent(EventCreateRequest request, String organizerEmail) {
@@ -39,13 +46,17 @@ public class EventService {
                 .build();
 
         Event savedEvent = eventRepository.saveAndFlush(event);
-        return mapToResponse(savedEvent);
+        return mapToResponse(savedEvent, false);
     }
 
-    public List<EventResponse> getAllUpcomingEvents() {
-        return eventRepository.findByEventDateGreaterThanEqualOrderByEventDateAsc(LocalDate.now())
+    public List<EventResponse> getAllUpcomingEvents(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        List<Event> events = eventRepository.findUpcomingEventsWithOrganizer(LocalDate.now());
+        Set<UUID> registeredEventIds = registeredEventIds(user, events);
+        return events
                 .stream()
-                .map(this::mapToResponse)
+                .map(event -> mapToResponse(event, registeredEventIds.contains(event.getId())))
                 .toList();
     }
 
@@ -53,20 +64,69 @@ public class EventService {
         User organizer = userRepository.findByEmail(organizerEmail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        return eventRepository.findByOrganizer(organizer)
+        List<Event> events = eventRepository.findByOrganizer(organizer);
+        Set<UUID> registeredEventIds = registeredEventIds(organizer, events);
+        return events
                 .stream()
-                .map(this::mapToResponse)
+                .map(event -> mapToResponse(event, registeredEventIds.contains(event.getId())))
                 .toList();
     }
 
-    public EventResponse getEventById(UUID id) {
+    public EventResponse getEventById(UUID id, String userEmail) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + id));
-        return mapToResponse(event);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return mapToResponse(event, registrationRepository.existsByEventIdAndUser(id, user));
     }
 
-    // Helper mapper
-    private EventResponse mapToResponse(Event event) {
+    @Transactional
+    public EventResponse register(UUID eventId, String userEmail) {
+        User user = findUser(userEmail);
+        if (user.getRole() == Role.ORGANIZER) {
+            throw new OrganizerRsvpNotAllowedException();
+        }
+        Event event = eventRepository.findByIdForUpdate(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + eventId));
+
+        if (!registrationRepository.existsByEventIdAndUser(eventId, user)) {
+            int registeredCount = event.getRegisteredCount() == null ? 0 : event.getRegisteredCount();
+            if (registeredCount >= event.getCapacity()) {
+                throw new EventCapacityExceededException("This event is fully booked.");
+            }
+            registrationRepository.save(EventRegistration.builder().event(event).user(user).build());
+            event.setRegisteredCount(registeredCount + 1);
+        }
+        return mapToResponse(event, true);
+    }
+
+    @Transactional
+    public EventResponse cancelRegistration(UUID eventId, String userEmail) {
+        User user = findUser(userEmail);
+        Event event = eventRepository.findByIdForUpdate(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + eventId));
+
+        if (registrationRepository.existsByEventIdAndUser(eventId, user)) {
+            registrationRepository.deleteByEventIdAndUser(eventId, user);
+            event.setRegisteredCount(Math.max(0, (event.getRegisteredCount() == null ? 0 : event.getRegisteredCount()) - 1));
+        }
+        return mapToResponse(event, false);
+    }
+
+    private User findUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    }
+
+    private Set<UUID> registeredEventIds(User user, List<Event> events) {
+        if (events.isEmpty()) {
+            return Set.of();
+        }
+        return registrationRepository.findEventIdsByUserAndEventIdIn(
+                user, events.stream().map(Event::getId).toList());
+    }
+
+    private EventResponse mapToResponse(Event event, boolean registered) {
         return new EventResponse(
                 event.getId(),
                 event.getTitle(),
@@ -76,6 +136,8 @@ public class EventService {
                 event.getEventTime(),
                 event.getVenue(),
                 event.getCapacity(),
+                event.getRegisteredCount() == null ? 0 : event.getRegisteredCount(),
+                registered,
                 event.getOrganizer().getFullName(),
                 event.getOrganizer().getEmail()
         );
