@@ -22,13 +22,13 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllUpcomingEvents() {
-        return ResponseEntity.ok(eventService.getAllUpcomingEvents());
+    public ResponseEntity<List<EventResponse>> getAllUpcomingEvents(Authentication authentication) {
+        return ResponseEntity.ok(eventService.getAllUpcomingEvents(authentication.getName()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventResponse> getEventById(@PathVariable UUID id) {
-        return ResponseEntity.ok(eventService.getEventById(id));
+    public ResponseEntity<EventResponse> getEventById(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(eventService.getEventById(id, authentication.getName()));
     }
 
     @PostMapping
@@ -47,5 +47,24 @@ public class EventController {
     public ResponseEntity<List<EventResponse>> getMyEvents(Authentication authentication) {
         String organizerEmail = authentication.getName();
         return ResponseEntity.ok(eventService.getEventsByOrganizer(organizerEmail));
+    }
+
+    @GetMapping("/my-rsvps")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<EventResponse>> getMyRsvps(Authentication authentication) {
+        return ResponseEntity.ok(eventService.getMyRsvps(authentication.getName()));
+    }
+
+    @PostMapping("/{id}/rsvp")
+    public ResponseEntity<EventResponse> register(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(eventService.register(id, authentication.getName()));
+    }
+
+    @DeleteMapping("/{id}/rsvp")
+    public ResponseEntity<EventResponse> cancelRegistration(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(eventService.cancelRegistration(id, authentication.getName()));
     }
 }

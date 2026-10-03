@@ -43,6 +43,10 @@ public class Event {
     @Column(nullable = false)
     private Integer capacity;
 
+    @Column(nullable = false, columnDefinition = "int default 0")
+    @Builder.Default
+    private Integer registeredCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id", nullable = false)
     private User organizer;

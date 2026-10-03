@@ -2,6 +2,7 @@ package com.campusconnect.service;
 
 import com.campusconnect.dto.request.UpdateProfileRequest;
 import com.campusconnect.repository.UserRepository;
+import com.campusconnect.repository.EventRegistrationRepository;
 import com.campusconnect.model.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EventRegistrationRepository registrationRepository;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -47,6 +49,7 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
 
+        registrationRepository.deleteByUser(user);
         userRepository.delete(user);
         userRepository.flush();
     }

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 import RootRedirect from "./components/RootRedirect.tsx";
+import MyRsvps from './pages/MyRsvps';
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
                     {
                         path: '/settings',
                         element: <ProfileSettings />,
+                    },
+                    {
+                        path: '/my-rsvps',
+                        element: <MyRsvps />,
                     },
                 ],
             },
