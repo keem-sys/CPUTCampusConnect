@@ -13,6 +13,8 @@ public record EventResponse(
         String eventTime,
         String venue,
         Integer capacity,
+        Integer registeredCount,
+        boolean isRegistered,
         String organizerName,
         String organizerEmail
 ) {}
