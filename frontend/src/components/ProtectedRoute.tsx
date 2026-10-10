@@ -1,6 +1,6 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom'; // <-- 1. Import useOutletContext
+import type { Role } from '../types/apiResponses';
 import toast from 'react-hot-toast';
-import type {Role} from "../types/apiResponses.ts";
 
 interface ProtectedRouteProps {
     allowedRoles?: Role[];
@@ -24,6 +24,8 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     const location = useLocation();
     const userRole = getUserRoleFromToken();
 
+    const context = useOutletContext();
+
     if (!token) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
@@ -33,5 +35,5 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
         return <Navigate to="/dashboard" replace />;
     }
 
-    return <Outlet />;
+    return <Outlet context={context} />;
 }

@@ -31,4 +31,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
             order by e.eventDate asc
             """)
     List<Event> findUpcomingEventsWithOrganizer(LocalDate date);
+
+    @Query("select e.campus, count(e) from Event e group by e.campus")
+    List<Object[]> countEventsByCampusGroup();
+
+    List<Event> findTop5ByOrderByCreatedAtDesc();
 }

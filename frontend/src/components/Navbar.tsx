@@ -108,13 +108,17 @@ export default function Navbar({ user }: NavbarProps) {
 
                         {/* Admin specific link */}
                         {user.role === 'ADMIN' && (
-                            <button
-                                onClick={() => toast('Admin Portal view coming soon!')}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-purple-700 hover:bg-purple-50 transition-colors cursor-pointer"
+                            <Link
+                                to="/admin/dashboard"
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                                    isActive('/admin/dashboard')
+                                        ? 'bg-purple-50 text-purple-800'
+                                        : 'text-purple-700 hover:bg-purple-50'
+                                }`}
                             >
                                 <ShieldCheck className="h-4 w-4" />
-                                Admin Panel
-                            </button>
+                                Admin Portal
+                            </Link>
                         )}
                     </nav>
                 )}

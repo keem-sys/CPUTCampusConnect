@@ -11,6 +11,9 @@ import CreateEvent from "./pages/CreateEvent";
 import OrganizerEvents from "./pages/OrganizerEvents";
 import EventDetails from "./pages/EventDetails.tsx";
 import ManageEvents from "./pages/ManageEvents.tsx";
+import AdminDashboard from "./pages/AdminDashboard.tsx";
+import AdminUsers from "./pages/AdminUsers.tsx";
+import AdminEvents from "./pages/AdminEvents.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -68,8 +71,16 @@ export const router = createBrowserRouter([
                         element: <ProtectedRoute allowedRoles={['ADMIN']} />,
                         children: [
                             {
+                                path: '/admin/dashboard',
+                                element: <AdminDashboard />
+                            },
+                            {
                                 path: '/admin/users',
-                                element: <div>Admin User Management (Admins Only)</div>
+                                element:<AdminUsers />
+                            },
+                            {
+                                path: '/admin/events',
+                                element: <AdminEvents />
                             },
                         ],
                     },
