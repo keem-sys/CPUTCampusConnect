@@ -1,5 +1,6 @@
 package com.campusconnect.dto.request;
 
+import com.campusconnect.model.Campus;
 import com.campusconnect.model.EventCategory;
 import jakarta.validation.constraints.*;
 
@@ -15,6 +16,12 @@ public record EventCreateRequest(
 
         @NotNull(message = "Category is required")
         EventCategory category,
+
+        @NotNull(message = "Campus is required")
+        Campus campus,
+
+        @Size(max = 500, message = "Image URL cannot exceed 500 characters")
+        String imageUrl,
 
         @NotNull(message = "Event date is required")
         @FutureOrPresent(message = "Event date must be today or in the future")

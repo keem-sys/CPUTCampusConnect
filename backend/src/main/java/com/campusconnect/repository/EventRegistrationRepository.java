@@ -28,4 +28,13 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
             order by e.eventDate asc
             """)
     List<EventRegistration> findByUserWithEventAndOrganizer(@Param("user") User user);
+
+    @Query("""
+        select r
+        from EventRegistration r
+        join fetch r.user
+        where r.event.id = :eventId
+        order by r.registeredAt asc
+        """)
+    List<EventRegistration> findByEventIdWithUser(@Param("eventId") UUID eventId);
 }

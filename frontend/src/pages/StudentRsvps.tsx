@@ -17,7 +17,7 @@ interface RsvpEvent {
     registeredCount: number;
 }
 
-export default function MyRsvps() {
+export default function StudentRsvps() {
     const [events, setEvents] = useState<RsvpEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState<string | null>(null);

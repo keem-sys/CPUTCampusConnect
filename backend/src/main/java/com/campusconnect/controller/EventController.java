@@ -1,6 +1,7 @@
 package com.campusconnect.controller;
 
 import com.campusconnect.dto.request.EventCreateRequest;
+import com.campusconnect.dto.response.AttendeeResponse;
 import com.campusconnect.dto.response.EventResponse;
 import com.campusconnect.service.EventService;
 import jakarta.validation.Valid;
@@ -66,5 +67,25 @@ public class EventController {
             Authentication authentication
     ) {
         return ResponseEntity.ok(eventService.cancelRegistration(id, authentication.getName()));
+    }
+
+    @GetMapping("/{id}/attendees")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
+    public ResponseEntity<List<AttendeeResponse>> getEventAttendees(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(eventService.getEventAttendees(id, authentication.getName()));
+    }
+
+    @DeleteMapping("/{id}/attendees/{userId}")
+    @PreAuthorize("hasAnyRole('ORGANIZER', 'ADMIN')")
+    public ResponseEntity<Void> removeAttendee(
+            @PathVariable UUID id,
+            @PathVariable UUID userId,
+            Authentication authentication
+    ) {
+        eventService.removeAttendee(id, userId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }

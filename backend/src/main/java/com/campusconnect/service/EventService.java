@@ -1,6 +1,7 @@
 package com.campusconnect.service;
 
 import com.campusconnect.dto.request.EventCreateRequest;
+import com.campusconnect.dto.response.AttendeeResponse;
 import com.campusconnect.dto.response.EventResponse;
 import com.campusconnect.model.Event;
 import com.campusconnect.model.EventRegistration;
@@ -10,9 +11,10 @@ import com.campusconnect.repository.EventRepository;
 import com.campusconnect.repository.EventRegistrationRepository;
 import com.campusconnect.repository.UserRepository;
 import com.campusconnect.exception.EventCapacityExceededException;
-import com.campusconnect.exception.OrganizerRsvpNotAllowedException;
+import com.campusconnect.exception.RsvpNotAllowedException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +40,8 @@ public class EventService {
                 .title(request.title())
                 .description(request.description())
                 .category(request.category())
+                .campus(request.campus())
+                .imageUrl(request.imageUrl())
                 .eventDate(request.eventDate())
                 .eventTime(request.eventTime())
                 .venue(request.venue())
@@ -91,8 +95,8 @@ public class EventService {
     @Transactional
     public EventResponse register(UUID eventId, String userEmail) {
         User user = findUser(userEmail);
-        if (user.getRole() == Role.ORGANIZER) {
-            throw new OrganizerRsvpNotAllowedException();
+        if (user.getRole() != Role.STUDENT) {
+            throw new RsvpNotAllowedException();
         }
         Event event = eventRepository.findByIdForUpdate(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + eventId));
@@ -134,12 +138,54 @@ public class EventService {
                 user, events.stream().map(Event::getId).toList());
     }
 
+    public List<AttendeeResponse> getEventAttendees(UUID eventId, String organizerEmail) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        User requester = findUser(organizerEmail);
+
+        // Security check: You can only view the roster for events YOU organized (unless you are Admin)
+        if (!event.getOrganizer().getUserId().equals(requester.getUserId()) && requester.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You can only view attendees for your own events.");
+        }
+
+        return registrationRepository.findByEventIdWithUser(eventId)
+                .stream()
+                .map(reg -> new AttendeeResponse(
+                        reg.getUser().getUserId(),
+                        reg.getUser().getFullName(),
+                        reg.getUser().getEmail(),
+                        reg.getRegisteredAt()
+                ))
+                .toList();
+    }
+
+    @Transactional
+    public void removeAttendee(UUID eventId, UUID userId, String organizerEmail) {
+        Event event = eventRepository.findByIdForUpdate(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        User requester = findUser(organizerEmail);
+
+        if (!event.getOrganizer().getUserId().equals(requester.getUserId()) && requester.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You can only manage attendees for your own events.");
+        }
+
+        User student = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+
+        if (registrationRepository.existsByEventIdAndUser(eventId, student)) {
+            registrationRepository.deleteByEventIdAndUser(eventId, student);
+            event.setRegisteredCount(Math.max(0, (event.getRegisteredCount() == null ? 0 : event.getRegisteredCount()) - 1));
+        }
+    }
+
     private EventResponse mapToResponse(Event event, boolean registered) {
         return new EventResponse(
                 event.getId(),
                 event.getTitle(),
                 event.getDescription(),
                 event.getCategory(),
+                event.getCampus(),
+                event.getImageUrl(),
                 event.getEventDate(),
                 event.getEventTime(),
                 event.getVenue(),

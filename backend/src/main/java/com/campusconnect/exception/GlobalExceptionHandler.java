@@ -41,8 +41,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(OrganizerRsvpNotAllowedException.class)
-    public ResponseEntity<ErrorResponse> handleOrganizerRsvpNotAllowed(OrganizerRsvpNotAllowedException e) {
+    @ExceptionHandler(RsvpNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleOrganizerRsvpNotAllowed(RsvpNotAllowedException e) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(), "Forbidden", e.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);

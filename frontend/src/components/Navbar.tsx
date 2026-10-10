@@ -8,7 +8,7 @@ import {
     BookmarkCheck,
     ShieldCheck,
     Menu,
-    X
+    X, BarChart3
 } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -84,13 +84,26 @@ export default function Navbar({ user }: NavbarProps) {
 
                         {/* Organizer specific link */}
                         {user.role === 'ORGANIZER' && (
-                            <button
-                                onClick={() => toast('Event Creation modal is coming in the next step!')}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-accent hover:bg-orange-50 transition-colors cursor-pointer"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Create Event
-                            </button>
+                            <>
+                                <Link
+                                    to="/organizer/events"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                                        isActive('/organizer/events')
+                                            ? 'bg-blue-50 text-brand-primary'
+                                            : 'text-muted hover:text-brand-primary hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <BarChart3 className="h-4 w-4" />
+                                    My Events
+                                </Link>
+                                <Link
+                                    to="/events/create"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-accent hover:bg-orange-50 transition-colors"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Create Event
+                                </Link>
+                            </>
                         )}
 
                         {/* Admin specific link */}
@@ -197,16 +210,15 @@ export default function Navbar({ user }: NavbarProps) {
                         </Link>
                     )}
                     {user.role === 'ORGANIZER' && (
-                        <button
-                            onClick={() => {
-                                setMobileMenuOpen(false);
-                                toast('Event Creation coming next!');
-                            }}
-                            className="block w-full text-left py-1.5 text-xs font-semibold text-brand-accent"
+                        <Link
+                            to="/events/create"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block py-1.5 text-xs font-semibold text-brand-accent"
                         >
                             Create New Event
-                        </button>
+                        </Link>
                     )}
+
                     <Link
                         to="/settings"
                         onClick={() => setMobileMenuOpen(false)}

@@ -31,6 +31,13 @@ public class Event {
     @Column(nullable = false)
     private EventCategory category;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Campus campus;
+
+    @Column(length = 500)
+    private String imageUrl;
+
     @Column(nullable = false)
     private LocalDate eventDate;
 

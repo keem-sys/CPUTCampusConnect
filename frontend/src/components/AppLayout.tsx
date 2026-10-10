@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
-import type {UserProfile} from './Navbar';
 import Footer from './Footer';
 import axiosClient from '../services/axiosClient';
 import toast from 'react-hot-toast';
+import type {UserProfile} from "../types/apiResponses.ts";
 
 export default function AppLayout() {
     const [user, setUser] = useState<UserProfile | null>(null);

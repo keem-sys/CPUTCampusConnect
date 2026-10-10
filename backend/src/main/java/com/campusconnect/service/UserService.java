@@ -1,6 +1,8 @@
 package com.campusconnect.service;
 
 import com.campusconnect.dto.request.UpdateProfileRequest;
+import com.campusconnect.model.Event;
+import com.campusconnect.model.EventRegistration;
 import com.campusconnect.repository.UserRepository;
 import com.campusconnect.repository.EventRegistrationRepository;
 import com.campusconnect.model.User;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +52,12 @@ public class UserService {
     public void deleteUser(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+
+        List<EventRegistration> registrations = registrationRepository.findByUserWithEventAndOrganizer(user);
+        for (EventRegistration reg : registrations) {
+            Event event = reg.getEvent();
+            event.setRegisteredCount(Math.max(0, event.getRegisteredCount() - 1));
+        }
 
         registrationRepository.deleteByUser(user);
         userRepository.delete(user);
