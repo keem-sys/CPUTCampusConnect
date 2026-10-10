@@ -69,13 +69,17 @@ export default function Navbar({ user }: NavbarProps) {
 
                         {/* Student specific link */}
                         {user.role === 'STUDENT' && (
-                            <button
-                                onClick={() => toast('My RSVPs view is coming soon!')}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-muted hover:text-brand-primary hover:bg-gray-100 transition-colors cursor-pointer"
+                            <Link
+                                to="/my-rsvps"
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                                    isActive('/my-rsvps')
+                                        ? 'bg-blue-50 text-brand-primary'
+                                        : 'text-muted hover:text-brand-primary hover:bg-gray-100'
+                                }`}
                             >
                                 <BookmarkCheck className="h-4 w-4" />
                                 My RSVPs
-                            </button>
+                            </Link>
                         )}
 
                         {/* Organizer specific link */}
@@ -183,6 +187,15 @@ export default function Navbar({ user }: NavbarProps) {
                     >
                         Explore Events
                     </Link>
+                    {user.role === 'STUDENT' && (
+                        <Link
+                            to="/my-rsvps"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block py-1.5 text-xs font-semibold text-brand-primary"
+                        >
+                            My RSVPs
+                        </Link>
+                    )}
                     {user.role === 'ORGANIZER' && (
                         <button
                             onClick={() => {
