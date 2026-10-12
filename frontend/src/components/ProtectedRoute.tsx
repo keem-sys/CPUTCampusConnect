@@ -1,22 +1,10 @@
-import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom'; // <-- 1. Import useOutletContext
+import { Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom';
 import type { Role } from '../types/apiResponses';
 import toast from 'react-hot-toast';
+import {getUserRoleFromToken} from "../utils/auth.ts";
 
 interface ProtectedRouteProps {
     allowedRoles?: Role[];
-}
-
-function getUserRoleFromToken(): Role | null {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (!token) return null;
-
-    try {
-        const payloadBase64 = token.split('.')[1];
-        const decodedPayload = JSON.parse(atob(payloadBase64));
-        return (decodedPayload.role as Role) || null;
-    } catch {
-        return null;
-    }
 }
 
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {

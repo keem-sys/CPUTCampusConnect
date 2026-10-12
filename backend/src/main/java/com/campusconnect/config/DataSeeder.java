@@ -67,7 +67,6 @@ public class DataSeeder implements CommandLineRunner {
                 .role(Role.STUDENT)
                 .build();
 
-        // Additional Students to populate attendee lists and trigger capacity limits
         User student2 = User.builder()
                 .fullName("Sipho Ndlovu")
                 .email("sipho.ndlovu@mycput.ac.za")
@@ -91,25 +90,24 @@ public class DataSeeder implements CommandLineRunner {
 
         userRepository.saveAll(List.of(admin, fidOrganizer, roboticsOrganizer, demoStudent, student2, student3, student4));
 
-        // SEED REALISTIC MULTI-CAMPUS EVENTS
-
-        // Event 1: Career / Tech Expo (District Six) - Open for registration
+        // ==========================================
+        // 2. SEED REALISTIC MULTI-CAMPUS EVENTS
+        // ==========================================
         Event expoEvent = Event.builder()
-                .title("CPUT Annual Tech & Innovation Expo 2026")
-                .description("Showcase of final-year ICT student capstone projects, robotics demonstrations, and networking with top Cape Town tech employers. Dress code: Smart casual.")
+                .title("Career Fair 2026")
+                .description("Annual CPUT flagship Career Fair connecting students with graduate recruiters, internship opportunities, and top industry employers across the Western Cape. Dress code: Smart casual.")
                 .category(EventCategory.CAREER)
                 .campus(Campus.CAPE_TOWN)
                 .imageUrl("https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1000&q=80")
-                .eventDate(LocalDate.now().plusDays(4))
-                .eventTime("10:00 - 15:30")
+                .eventDate(LocalDate.now().plusDays(2))
+                .eventTime("09:30 - 15:30")
                 .venue("District Six - Multi-Purpose Sports Hall")
                 .capacity(150)
-                .registeredCount(2) // Pre-registered with student2 and student3
+                .registeredCount(2)
                 .organizer(fidOrganizer)
                 .build();
 
         // Event 2: EDGE CASE -> FULLY BOOKED LAB (Bellville)
-        // Capacity is tiny (3 seats), and all 3 are taken. Shows capacity limits!
         Event labEvent = Event.builder()
                 .title("Advanced AI & Machine Learning Lab Sprint")
                 .description("Hands-on high-performance computing session on the Bellville GPU Cluster. Strict workstation cap: exactly 3 workstations available.")
@@ -120,7 +118,7 @@ public class DataSeeder implements CommandLineRunner {
                 .eventTime("09:00 - 16:00")
                 .venue("Bellville Campus - Engineering Lab 3.12")
                 .capacity(3)
-                .registeredCount(3) // 100% FULL! (John Doe, Sipho, Chloe)
+                .registeredCount(3)
                 .organizer(roboticsOrganizer)
                 .build();
 
@@ -135,7 +133,7 @@ public class DataSeeder implements CommandLineRunner {
                 .eventTime("16:30 - 20:00")
                 .venue("Bellville Indoor Sports Centre")
                 .capacity(300)
-                .registeredCount(0) // 0 spots booked -> perfect for clicking "RSVP Now" during presentation
+                .registeredCount(0)
                 .organizer(fidOrganizer)
                 .build();
 
@@ -191,7 +189,7 @@ public class DataSeeder implements CommandLineRunner {
                 .category(EventCategory.SOCIAL)
                 .campus(Campus.CAPE_TOWN)
                 .imageUrl("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=80")
-                .eventDate(LocalDate.now().plusDays(2))
+                .eventDate(LocalDate.now().plusDays(3))
                 .eventTime("22:00 - 03:00")
                 .venue("District Six - Rooftop Level 5")
                 .capacity(100)
@@ -201,13 +199,14 @@ public class DataSeeder implements CommandLineRunner {
 
         eventRepository.saveAll(List.of(expoEvent, labEvent, derbyEvent, culinaryEvent, educationEvent, onlineEvent, spamEvent));
 
-        // SEED AUTHENTIC EVENT REGISTRATIONS (RSVPs)
+        // ==========================================
+        // 3. SEED AUTHENTIC EVENT REGISTRATIONS (RSVPs)
+        // ==========================================
 
         EventRegistration r1 = EventRegistration.builder()
                 .event(expoEvent).user(student2).registeredAt(LocalDateTime.now().minusDays(2)).build();
         EventRegistration r2 = EventRegistration.builder()
                 .event(expoEvent).user(student3).registeredAt(LocalDateTime.now().minusDays(1)).build();
-
 
         EventRegistration r3 = EventRegistration.builder()
                 .event(labEvent).user(demoStudent).registeredAt(LocalDateTime.now().minusDays(3)).build();
@@ -226,6 +225,6 @@ public class DataSeeder implements CommandLineRunner {
 
         registrationRepository.saveAll(List.of(r1, r2, r3, r4, r5, r6, r7, r8));
 
-        System.out.println(">>> [DataSeeder] Successfully Seeded the Database:");
+        System.out.println(">>> [DataSeeder] Seeded dataset aligned with login notification!");
     }
 }

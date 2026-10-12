@@ -11,6 +11,7 @@ import type {BackendErrorResponse, LocationState} from '../types/apiResponses.ts
 import { isAxiosError } from 'axios';
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from 'react-router-dom';
+import {getDefaultRouteForRole, getUserRoleFromToken} from "../utils/auth.ts";
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -35,8 +36,13 @@ export default function Login() {
                 sessionStorage.setItem('token', token);
             }
             toast.success('Welcome back!');
-            const from = (location.state as LocationState)?.from?.pathname || '/dashboard';
-            navigate(from, { replace: true });
+            const userRole = getUserRoleFromToken(token);
+            const defaultHome = getDefaultRouteForRole(userRole);
+
+            const state = location.state as LocationState | null;
+            const destination = state?.from?.pathname || defaultHome;
+
+            navigate(destination, { replace: true });
         } catch (err: unknown) {
             let message = 'An unexpected network error occurred.';
 

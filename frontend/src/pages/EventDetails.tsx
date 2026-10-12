@@ -23,7 +23,8 @@ interface CampusEventDetail {
     title: string;
     description: string;
     category: string;
-    campus?: string;
+    campus: string;
+    imageUrl?: string;
     eventDate: string;
     eventTime: string;
     venue: string;
@@ -162,25 +163,40 @@ export default function EventDetails() {
 
                     <div className="rounded-2xl border border-ui-border bg-card p-6 sm:p-8 shadow-subtle">
 
+                        {event.imageUrl && (
+                            <div className="mb-6 h-60 sm:h-72 w-full rounded-xl overflow-hidden border border-ui-border bg-gray-100">
+                                <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    className="h-full w-full object-cover"
+                                    onError={(e) => {
+                                        // If the external link fails to load, gracefully hide the container without leaving empty space
+                                        const container = e.currentTarget.parentElement;
+                                        if (container) container.style.display = 'none';
+                                    }}
+                                />
+                            </div>
+                        )}
+
                         {/* Badges */}
                         <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-brand-primary uppercase tracking-wide">
-                <Tag className="h-3 w-3" />
-                  {event.category}
-              </span>
+                            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-brand-primary uppercase tracking-wide">
+                                <Tag className="h-3 w-3" />
+                                {event.category}
+                            </span>
 
                             {event.campus && (
                                 <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-brand-accent uppercase tracking-wide border border-orange-100">
-                  <Building2 className="h-3 w-3" />
+                                    <Building2 className="h-3 w-3" />
                                     {CAMPUS_LABELS[event.campus] || event.campus}
-                </span>
+                                </span>
                             )}
 
                             {event.isRegistered && (
                                 <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-200">
-                  <CheckCircle2 className="h-3 w-3" />
-                  You are registered
-                </span>
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    You are registered
+                                </span>
                             )}
                         </div>
 
@@ -189,7 +205,7 @@ export default function EventDetails() {
                             {event.title}
                         </h1>
 
-                        {/* Comprehensive Description (No truncation) */}
+                        {/* Event Description */}
                         <div className="border-t border-ui-border pt-6 mt-6">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-muted mb-3">
                                 About this Event
@@ -270,8 +286,8 @@ export default function EventDetails() {
                                     <div className="flex justify-between items-center mb-1">
                                         <p className="font-bold text-brand-primary">Attendance</p>
                                         <span className={`font-bold ${isFull ? 'text-red-500' : 'text-muted'}`}>
-                      {event.registeredCount} / {event.capacity}
-                    </span>
+                                            {event.registeredCount} / {event.capacity}
+                                        </span>
                                     </div>
 
                                     <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">

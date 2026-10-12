@@ -120,7 +120,11 @@ public class EventService {
 
         if (registrationRepository.existsByEventIdAndUser(eventId, user)) {
             registrationRepository.deleteByEventIdAndUser(eventId, user);
-            event.setRegisteredCount(Math.max(0, (event.getRegisteredCount() == null ? 0 : event.getRegisteredCount()) - 1));
+            registrationRepository.flush();
+
+            int trueCount = (int) registrationRepository.countByEventId(eventId);
+            event.setRegisteredCount(trueCount);
+            eventRepository.saveAndFlush(event);
         }
         return mapToResponse(event, false);
     }
@@ -174,7 +178,12 @@ public class EventService {
 
         if (registrationRepository.existsByEventIdAndUser(eventId, student)) {
             registrationRepository.deleteByEventIdAndUser(eventId, student);
-            event.setRegisteredCount(Math.max(0, (event.getRegisteredCount() == null ? 0 : event.getRegisteredCount()) - 1));
+            registrationRepository.flush();
+
+            int trueCount = (int) registrationRepository.countByEventId(eventId);
+            event.setRegisteredCount(trueCount);
+
+            eventRepository.saveAndFlush(event);
         }
     }
 

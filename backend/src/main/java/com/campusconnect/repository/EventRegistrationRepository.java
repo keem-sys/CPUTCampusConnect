@@ -37,4 +37,6 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
         order by r.registeredAt asc
         """)
     List<EventRegistration> findByEventIdWithUser(@Param("eventId") UUID eventId);
+
+    long countByEventId(UUID eventId);
 }

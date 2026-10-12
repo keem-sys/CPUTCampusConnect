@@ -64,7 +64,6 @@ export default function AdminEvents() {
         fetchEvents();
     }, []);
 
-    // Force-Delete a Policy-Violating Event
     const handleDeleteEvent = async (eventId: string, title: string) => {
         const confirmed = window.confirm(
             `SECURITY ACTION: Force-delete event "${title}"?\n\nThis will permanently delete the event and cancel all student reservations in the database.`
@@ -128,7 +127,7 @@ export default function AdminEvents() {
                         Event Moderation & Auditing
                     </h1>
                     <p className="mt-1 text-sm text-muted">
-                        Inspect all campus activities, verify venue safety, or remove inappropriate content [2].
+                        Inspect all campus activities, verify venue safety, or remove inappropriate content.
                     </p>
                 </div>
 

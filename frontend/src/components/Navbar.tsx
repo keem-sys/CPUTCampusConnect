@@ -98,7 +98,11 @@ export default function Navbar({ user }: NavbarProps) {
                                 </Link>
                                 <Link
                                     to="/events/create"
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-brand-accent hover:bg-orange-50 transition-colors"
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                                        isActive('/events/create')
+                                            ? 'bg-blue-50 text-brand-primary'
+                                            : 'text-muted hover:text-brand-primary hover:bg-gray-100'
+                                    }`}
                                 >
                                     <Plus className="h-4 w-4" />
                                     Create Event
@@ -217,7 +221,11 @@ export default function Navbar({ user }: NavbarProps) {
                         <Link
                             to="/events/create"
                             onClick={() => setMobileMenuOpen(false)}
-                            className="block py-1.5 text-xs font-semibold text-brand-accent"
+                            className={`block py-1.5 text-xs font-semibold ${
+                                isActive('/events/create')
+                                    ? 'text-brand-primary font-bold'
+                                    : 'text-muted hover:text-brand-primary'
+                            }`}
                         >
                             Create New Event
                         </Link>

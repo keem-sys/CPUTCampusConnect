@@ -6,7 +6,6 @@ import {
     ShieldCheck,
     MapPin,
     ArrowUpRight,
-    Sparkles,
     Building2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
