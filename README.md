@@ -1,151 +1,171 @@
 # CPUT Campus Connect
 
-[![React](https://img.shields.io/badge/React-Frontend-blue.svg?style=flat-square&logo=react)](https://reactjs.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-Backend-brightgreen.svg?style=flat-square&logo=spring)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-Database-lightgrey.svg?style=flat-square&logo=mysql)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/Apache%202.0-License-blue.svg?style=flat-square&logo=apache)](LICENSE)
+[![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)](https://react.dev/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0-brightgreen?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/Database-MySQL-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
 
-<!-- TODO: ADD SCREENSHOT OF THE APP DASHBOARD HERE -->
+CPUT Campus Connect is a campus event discovery and management platform built for the Cape Peninsula University of Technology (CPUT). Students can find events and manage their RSVPs, organizers can publish events and manage attendees, and administrators can oversee users and events.
 
-## Project Overview
+The project is being developed for **PRT362S Project III (Applications Development), 2026**. It brings event information and registration together in one place instead of relying on scattered notices and manual RSVP lists.
 
-CPUT Campus Connect is a full-stack web application developed as part of the 
-**PRT362S Project III (Applications Development)** subject at the Cape Peninsula University of Technology (CPUT) 
-for the 2026 academic year.
+## Features
 
-The goal of this application is to provide students, faculty, and university clubs with a centralized, 
-user-friendly digital hub to discover, promote, and manage campus events effectively.
+- **Student experience:** Browse upcoming events, view event details, RSVP or cancel an RSVP, view registered events, and manage a profile.
+- **Organizer tools:** Create and manage events, review event attendees, and remove attendees when needed.
+- **Administration:** Review platform statistics, users, and events; change user roles and remove users or events.
+- **Authentication and access control:** Register and log in using JWT authentication. Passwords are BCrypt-hashed, and role-based permissions distinguish students, organizers, and administrators.
+- **Capacity-aware registration:** Event registration is handled by the backend, which enforces event rules including capacity.
+- **Demo content:** On first startup against an empty database, the backend seeds demo users and sample events.
 
-## Problem Definition
+## Technology
 
-Currently, information regarding university events (academic workshops, social gatherings, club activities) is 
-scattered across fragmented channels like physical notice boards and disorganized WhatsApp groups. 
-This leads to poor event visibility for students and inefficient, 
-manual RSVP tracking for event organizers. 
-Furthermore, the absence of an automated capacity management system often results in overcrowded venues.
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios
+- **Backend:** Java 21, Spring Boot 4, Spring Security, Spring Data JPA, Hibernate, Maven
+- **Database:** MySQL
+- **Authentication:** JWT and BCrypt
 
-This web application aims to alleviate these challenges by providing a dedicated platform to:
-- Centralize all campus event discoveries in one searchable dashboard.
-- Replace manual RSVP tracking (spreadsheets/forms) with an automated registration system.
-- Provide secure, role-based access for Students, Event Organizers, and Administrators.
+The frontend and backend are separate applications. The browser UI runs on `http://localhost:5173` and makes API requests to `http://localhost:8080` during local development.
 
-## Key Features
+## Requirements
 
-**System Functionality (Currently in Development):**
+- Java Development Kit (JDK) 21
+- Node.js compatible with Vite 8 (Node.js 20.19+ or 22.12+ recommended) and npm
+- MySQL Server
+- Git (to clone the repository)
 
-- **User Authentication & Security:**
-    - Secure user registration and login functionality.
-    - Password hashing using BCrypt.
-    - JWT (JSON Web Token) based session management for secure API communication.
-    - Strict Role-Based Access Control (RBAC) distinguishing between `Admin`, `Organizer`, and `Student`.
+## Run Locally
 
-- **Event Management (For Organizers):**
-    - Create, Read, Update, and Delete (CRUD) functionality for events.
-    - Requirement enforcement for event details (Title, Description, Date, Time, Venue, Capacity).
+### 1. Get the code
 
-- **Event Discovery & Registration (For Students):**
-    - Dynamic dashboard displaying upcoming events.
-    - Keyword search and category/date filtering functionality.
-    - One-click RSVP/Registration for events.
-    - Automated system blocks preventing registration once an event reaches its maximum venue capacity.
+```bash
+git clone https://github.com/keem-sys/CPUTCampusConnect.git
+cd CPUTCampusConnect
+```
 
-## Technologies Used
+If you already have the project locally, run the following commands from its root directory.
 
-This project utilizes a modern, decoupled architecture:
+### 2. Create the database
 
-**Frontend (Client-Side):**
-- **Library:** React.js
-- **Styling:** Tailwind CSS
-- **Package Manager:** Node Package Manager (npm)
+Create a local MySQL database, for example:
 
-**Backend (Server-Side):**
-- **Framework:** Java Spring Boot (Java 17+)
-- **Security:** Spring Security & JWT (JSON Web Tokens)
-- **ORM:** Spring Data JPA (Hibernate)
-- **Build Tool:** Maven
+```sql
+CREATE DATABASE campus_events_db
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+```
 
-**Database & Tools:**
-- **Database:** MySQL (Relational Database)
-- **IDE:** IntelliJ IDEA
-- **Version Control:** Git & GitHub
+### 3. Configure and start the backend
 
-## Setup and Running Instructions
+Create a private local configuration file from the provided example.
 
-**Prerequisites:**
-- **Java Development Kit (JDK):** Version 17 or higher.
-- **Node.js & npm:** Download from [Node.js](https://nodejs.org/).
-- **MySQL Server:** Installed and running locally.
-- **Git:** Installed on your machine.
+PowerShell:
 
-**Steps to Setup and Run Locally:**
+```powershell
+Copy-Item backend/src/main/resources/application-secret.properties.example backend/src/main/resources/application-secret.properties
+```
 
-1. **Clone the Repository:**
-    ```bash
-    git clone https://github.com/keem-sys/CPUTCampusConnect
-    cd CPUTCampusConnect
-    ```
+macOS/Linux:
 
-2. **Database Setup (MySQL):**
-    - Open your MySQL Workbench or terminal.
-    - Create a new database named `campus_events_db`.
+```bash
+cp backend/src/main/resources/application-secret.properties.example backend/src/main/resources/application-secret.properties
+```
 
-3. **Run the Backend (Spring Boot):**
-    - Open the `/backend` folder in IntelliJ IDEA.
-    - Navigate to `src/main/resources/application.properties` and update your MySQL credentials:
-      ```properties
-      spring.datasource.url=jdbc:mysql://localhost:3306/campus_events_db
-      spring.datasource.username=your_mysql_username
-      spring.datasource.password=your_mysql_password
-      ```
-    - Run the `CPUTCampusConnect.java` main class. The API will start on `http://localhost:8080`.
+Edit `backend/src/main/resources/application-secret.properties` and provide values for these properties:
 
-4. **Run the Frontend (React):**
-    - Open a new terminal and navigate to the `/frontend` directory.
-    - Install the required dependencies:
-      ```bash
-      npm install
-      ```
-    - Start the React development server:
-      ```bash
-      npm start
-      ```
-    - The application will open in your browser at `http://localhost:3000`.
+```properties
+JWT_SECRET=replace-with-a-long-random-secret
+DATABASE_URL=jdbc:mysql://localhost:3306/campus_events_db
+DB_USERNAME=your_mysql_username
+DB_PASSWORD=your_mysql_password
+PORT=8080
+```
 
-## Contributors
-This project is developed and maintained by :
+Use a strong, private JWT secret and your own local MySQL credentials. Do not commit `application-secret.properties` or use demo credentials in a production deployment. The backend imports this file as an optional local configuration file; the environment variables with the same names can also be supplied by your runtime.
 
-<div style="text-align: left;">
-  <a href="https://github.com/keem-sys" target="_blank" title="Ebenezer Kouakou - Project Lead" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/keem-sys.png?size=100" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Ebenezer"/>
-  </a>
-  <a href="https://github.com/Matthew-codez" target="_blank" title="Matthew Ferreira - Interface Designer" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/identicons/Matthew-codez.png" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Matthew"/>
-  </a>
-  <a href="https://github.com/Jaydenchoppa" target="_blank" title="Jayden Avontuur - Database Admin" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/identicons/Jaydenchoppa.png" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Jayden"/>
-  </a>
-  <a href="https://github.com/M-WazeerG" target="_blank" title="Mogamat Wazeer - Programmer" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/identicons/M-WazeerG.png" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Wazeer"/>
-  </a>
-  <a href="https://github.com/LisaTee-J" target="_blank" title="Lisakhanya Tinae Jonga - System Analyst" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/identicons/LisaTee-J.png" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Lisakhanya"/>
-  </a>
-  <a href="https://github.com/Coben220235686" target="_blank" title="Coben Maistry - GitHub/File Manager" style="display: inline-block; margin-right: 10px;">
-    <img src="https://github.com/identicons/Coben220235686.png" width="80px;" style="border-radius:50%; border: 1px solid #888;" alt="Coben"/>
-  </a>
-</div>
+Start the backend from the `backend` directory so the local configuration path resolves correctly.
 
-* **Project Leader:** Ebenezer Kouakou
-* **System Analyst:** Lisakhanya Tinae Jonga
-* **Interface Designer:** Matthew Ferreira
-* **Programmer:** Mogamat Wazeer
-* **Database Administrator:** Jayden Avontuur
-* **GitHub / File Manager:** Coben Maistry
+Windows PowerShell:
+
+```powershell
+cd backend
+.\mvnw.cmd spring-boot:run
+```
+
+macOS/Linux:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+The API listens on `http://localhost:8080` by default. On its first run with an empty users table, it creates demo users and sample events. JPA is configured to update the schema automatically for local development.
+
+### 4. Install and start the frontend
+
+Open another terminal at the repository root:
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Open the Vite URL shown in the terminal, normally `http://localhost:5173`. Keep the backend running as well. The frontend currently targets the API at `http://localhost:8080`, and the backend allows browser requests from `http://localhost:5173`.
+
+## Demo Accounts
+
+These accounts are inserted only when the database has no users. Use them for local development and demonstrations only.
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Administrator | `admin@cput.ac.za` | `AdminPass123!` |
+| Organizer | `fid.events@cput.ac.za` | `Organizer123!` |
+| Student | `john.student@mycput.ac.za` | `Student123!` |
+
+Additional organizers and students are also seeded. To start over with the demo dataset, clear the local database before restarting the backend; this removes all data in that database.
+
+## Useful Commands
+
+Run these from the appropriate `backend` or `frontend` directory.
+
+| Task | Command |
+| --- | --- |
+| Run backend tests (Windows) | `.\mvnw.cmd test` |
+| Run backend tests (macOS/Linux) | `./mvnw test` |
+| Install frontend dependencies | `npm ci` |
+| Check frontend lint | `npm run lint` |
+| Build frontend for production | `npm run build` |
+| Preview production frontend build | `npm run preview` |
+
+## API Overview
+
+The backend exposes a JSON REST API. Login and registration are public; other application routes require a valid bearer token. Role restrictions apply to organizer and administrator operations.
+
+| Area | Base path | Examples |
+| --- | --- | --- |
+| Authentication | `/api/auth` | `POST /register`, `POST /login` |
+| Events and RSVPs | `/api/events` | Browse events, event details, organizer events, attendee management, RSVP and cancellation |
+| User profile | `/api/users` | Current profile, profile update, account deletion |
+| Administration | `/api/admin` | Platform statistics, user and event management |
+
+## Project Structure
+
+```text
+backend/   Spring Boot REST API, persistence, security, and tests
+frontend/  React and TypeScript single-page application
+LICENSE    Apache License 2.0
+```
+
+## Team
+
+- **Project Lead:** [Ebenezer Kouakou](https://github.com/keem-sys)
+- **System Analyst:** [Lisakhanya Tinae Jonga](https://github.com/LisaTee-J)
+- **Interface Designer:** [Matthew Ferreira](https://github.com/Matthew-codez)
+- **Programmer:** [Mogamat Wazeer](https://github.com/M-WazeerG)
+- **Database Administrator:** [Jayden Avontuur](https://github.com/Jaydenchoppa)
+- **GitHub / File Manager:** [Coben Maistry](https://github.com/Coben220235686)
 
 ## License
 
-[Apache License 2.0](LICENSE)
-
-This project is licensed under the **Apache License 2.0**.
-
-This license is a permissive open-source license that grants broad freedoms to use, modify, and distribute the software for both commercial and non-commercial purposes. See the `LICENSE` file for the full license text.
+This project is licensed under the [Apache License 2.0](LICENSE).
